@@ -7,6 +7,8 @@
 > vue init webpack tutoSlack
 > npm install --save firebase vue-router vuex
 > 기본템플릿 정리
+> 아바타설치를 위해 md5 설치 후 yarn 처리
+> 태그에 클래스 2개 넣고 호출하는법
 
 ## Build Setup
 

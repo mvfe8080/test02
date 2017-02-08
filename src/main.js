@@ -9,6 +9,7 @@ import 'vue-material/dist/vue-material.css'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Tchat from './pages/Tchat'
+import store from './store'
 
 Vue.use(VueRouter)
 Vue.use(VueMaterial)
@@ -47,5 +48,6 @@ new Vue({
   el: '#app',
   template: '<App/>',
   components: { App },
-  router
+  router,
+  store
 })

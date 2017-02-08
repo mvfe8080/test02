@@ -7,12 +7,12 @@
         <form>
           <md-input-container>
             <label>이름</label>
-            <md-textarea placeholder="이름을 입력해 주세요" maxlength="20" name="name" v-model="name"></md-textarea>
+            <md-textarea maxlength="20" name="name" v-model.trim="name"></md-textarea>
           </md-input-container>
 
           <md-input-container>
             <label>이메일</label>
-            <md-input maxlength="20" name="email" v-model="email"></md-input>
+            <md-input maxlength="20" name="email" v-model.trim="email"></md-input>
           </md-input-container>
 
           <md-input-container>
@@ -24,11 +24,17 @@
             <label>패스워드확인</label>
             <md-input maxlength="20" name="password_confirmation" v-model="password_confirmation"></md-input>
           </md-input-container>
+
+          <div v-if="hasErrors">
+            <p v-for="error in errors">
+              {{ error }}
+            </p>
+          </div>
         </form>
       </md-dialog-content>
 
       <md-dialog-actions>
-        <md-button class="md-primary" @click.prevent="register">회원가입</md-button>
+        <md-button class="md-primary" @click.prevent="register" :class="{ 'md-accent': isLoading }">회원가입</md-button>
         <md-button class="md-primary" @click="closeDialog('dialog2')">취소</md-button>
         <md-button class="md-primary" @click="closeDialog('dialog2')">가입</md-button>
         <router-link to="/login"><md-button class="md-primary">로그인</md-button></router-link>
@@ -42,6 +48,7 @@
 </template>
 
 <script>
+import md5 from 'md5'
 export default {
   name: 'register',
   data () {
@@ -49,7 +56,16 @@ export default {
       name: '',
       email: '',
       password: '',
-      password_confirmation: ''
+      password_confirmation: '',
+      errors: [],
+      usersRef: firebase.database().ref('users'),
+      isLoading: false
+
+    }
+  },
+  computed: {
+    hasErrors () {
+      return this.errors.length > 0
     }
   },
   methods: {
@@ -67,12 +83,63 @@ export default {
     },
     register () {
       console.log("회원가입");
-      firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-      .then( user => {
-        console.log("회원가입" + user.email);
-      }).catch( error => {
-        console.log(error);
+      this.errors = [];
+      if(this.isFormValid()){
+        this.isLoading = true;
+        firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+        .then( user => {
+          console.log("회원가입" + user.email);
+          user.updateProfile({
+            displayName: this.name,
+            photoURL: "https://www.gravatar.com/avatar/"+md5(user.email)+"?d=identicon"
+          }).then ( () => {
+            //아바타 적용
+            this.saveUserToUsersRef(user).then( () => {
+              this.$store.dispatch("setUser", user)
+              this.$router.push('/')
+            })
+          }, error => {
+              console.log(error);
+              this.errors.push(error.message);
+          })
+        }).catch( error => {
+          console.log(error);
+          this.errors.push(error.message);
+          this.isLoading = false;
+        })
+      }
+    },
+    saveUserToUsersRef (user) {
+      return this.usersRef.child(user.uid).set({
+        name: user.displayName,
+        avatar: user.photoURL
       })
+    },
+    isEmpty () {
+      if(this.name.length == 0 || this.email.length == 0 || this.password.length == 0 || this.password_confirmation.length == 0){
+        return true;
+      }
+      return false;
+    },
+    passwordValid () {
+      if(this.password.length < 6 || this.password_confirmation.length < 6){
+        return false;
+      }
+      if(this.password !== this.password_confirmation){
+        return false;
+      }
+      return true;
+    },
+    isFormValid () {
+      if(this.isEmpty()){
+        this.errors.push('내용을 입력해 주세요!')
+        return false;
+      }
+      if(!this.passwordValid()){
+        this.errors.push('패스워드가 일치하지 않습니다!')
+        return false;
+      }
+      return true;
     }
   }
 };
