@@ -4,11 +4,14 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import App from './App'
 import firebase from 'firebase'
+import VueMaterial from 'vue-material'
+import 'vue-material/dist/vue-material.css'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Tchat from './pages/Tchat'
 
 Vue.use(VueRouter)
+Vue.use(VueMaterial)
 
 const routes = [
   {
