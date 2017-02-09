@@ -10,6 +10,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Tchat from './pages/Tchat'
 import store from './store'
+import Test from './pages/Test'
 
 Vue.use(VueRouter)
 Vue.use(VueMaterial)
@@ -26,6 +27,10 @@ const routes = [
   {
     path: '/',
     component: Tchat
+  },
+  {
+    path: '/test',
+    component: Test
   }
 ]
 

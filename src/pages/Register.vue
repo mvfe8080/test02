@@ -1,57 +1,66 @@
 <template>
-  <div id="app">
-    <md-dialog md-open-from="#fab" md-close-to="#fab" ref="dialog2">
-      <md-dialog-title>회원가입</md-dialog-title>
+<div class="ui middle aligned center aligned grid login__container">
+  <div class="column">
+    <h2 class="ui teal header">
+        <div class="content">
+          회원가입
+        </div>
+      </h2>
+    <form class="ui large form" :class="{'error': hasErrors}">
+      <div class="ui stacked segment">
 
-      <md-dialog-content>
-        <form>
-          <md-input-container>
-            <label>이름</label>
-            <md-textarea maxlength="20" name="name" v-model.trim="name"></md-textarea>
-          </md-input-container>
-
-          <md-input-container>
-            <label>이메일</label>
-            <md-input maxlength="20" name="email" v-model.trim="email"></md-input>
-          </md-input-container>
-
-          <md-input-container>
-            <label>패스워드</label>
-            <md-input maxlength="20" name="password" v-model="password"></md-input>
-          </md-input-container>
-
-          <md-input-container>
-            <label>패스워드확인</label>
-            <md-input maxlength="20" name="password_confirmation" v-model="password_confirmation"></md-input>
-          </md-input-container>
-
-          <div v-if="hasErrors">
-            <p v-for="error in errors">
-              {{ error }}
-            </p>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            <input type="text" name="name" placeholder="이름" v-model.trim="name" required>
           </div>
-        </form>
-      </md-dialog-content>
+        </div>
 
-      <md-dialog-actions>
-        <md-button class="md-primary" @click.prevent="register" :class="{ 'md-accent': isLoading }">회원가입</md-button>
-        <md-button class="md-primary" @click="closeDialog('dialog2')">취소</md-button>
-        <md-button class="md-primary" @click="closeDialog('dialog2')">가입</md-button>
-        <router-link to="/login"><md-button class="md-primary">로그인</md-button></router-link>
-      </md-dialog-actions>
-    </md-dialog>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            <input type="email" name="email" placeholder="이메일" v-model.trim="email" required>
+          </div>
+        </div>
 
-    <md-button class="md-fab md-fab-bottom-right" id="fab" @click="openDialog('dialog2')">
-      <md-icon>account_box</md-icon>
-    </md-button>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="lock icon"></i>
+            <input type="password" name="password" placeholder="패스워드" v-model.trim="password" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="lock icon"></i>
+            <input type="password" name="password_confirmation" placeholder="패스워드확인" v-model.trim="password_confirmation" required>
+          </div>
+        </div>
+
+        <div class="ui fluid large teal button" @click.prevent="register" :class="{'loading': isLoading}">회원가입</div>
+      </div>
+
+      <div class="ui error message" v-if="hasErrors">
+        <p v-for="error in errors">{{ error }}</p>
+      </div>
+
+    </form>
+
+    <div class="ui message">
+      <router-link to="/login">
+        <md-button class="md-primary">로그인</md-button>
+      </router-link>
+    </div>
   </div>
+</div>
 </template>
 
 <script>
 import md5 from 'md5'
+
 export default {
   name: 'register',
-  data () {
+  data() {
     return {
       name: '',
       email: '',
@@ -60,7 +69,6 @@ export default {
       errors: [],
       usersRef: firebase.database().ref('users'),
       isLoading: false
-
     }
   },
   computed: {
@@ -69,44 +77,30 @@ export default {
     }
   },
   methods: {
-    openDialog(ref) {
-      this.$refs[ref].open();
-    },
-    closeDialog(ref) {
-      this.$refs[ref].close();
-    },
-    onOpen() {
-      console.log('Opened');
-    },
-    onClose(type) {
-      console.log('Closed', type);
-    },
-    register () {
-      console.log("회원가입");
-      this.errors = [];
-      if(this.isFormValid()){
-        this.isLoading = true;
+    register() {
+      this.errors = []
+
+      if (this.isFormValid()) {
+        this.isLoading = true
         firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-        .then( user => {
-          console.log("회원가입" + user.email);
-          user.updateProfile({
-            displayName: this.name,
-            photoURL: "https://www.gravatar.com/avatar/"+md5(user.email)+"?d=identicon"
-          }).then ( () => {
-            //아바타 적용
-            this.saveUserToUsersRef(user).then( () => {
-              this.$store.dispatch("setUser", user)
-              this.$router.push('/')
+          .then(user => {
+            user.updateProfile({
+              displayName: this.name,
+              photoURL: "https://www.gravatar.com/avatar/" + md5(user.email) + "?d=identicon"
+            }).then(() => {
+              //아바타 적용
+              this.saveUserToUsersRef(user).then(() => {
+                this.$store.dispatch("setUser", user)
+                this.$router.push('/')
+              })
+            }, error => {
+              this.errors.push(error.message)
+              this.isLoading = false
             })
-          }, error => {
-              console.log(error);
-              this.errors.push(error.message);
+          }).catch(error => {
+            this.errors.push(error.message);
+            this.isLoading = false
           })
-        }).catch( error => {
-          console.log(error);
-          this.errors.push(error.message);
-          this.isLoading = false;
-        })
       }
     },
     saveUserToUsersRef (user) {
@@ -115,36 +109,42 @@ export default {
         avatar: user.photoURL
       })
     },
-    isEmpty () {
-      if(this.name.length == 0 || this.email.length == 0 || this.password.length == 0 || this.password_confirmation.length == 0){
+    isEmpty() {
+      if (this.name.length == 0 || this.email.length == 0 || this.password.length == 0 || this.password_confirmation.length == 0) {
         return true;
       }
       return false;
     },
-    passwordValid () {
-      if(this.password.length < 6 || this.password_confirmation.length < 6){
+    passwordValid() {
+      if (this.password.length < 6 || this.password_confirmation.length < 6) {
         return false;
       }
-      if(this.password !== this.password_confirmation){
+      if (this.password !== this.password_confirmation) {
         return false;
       }
       return true;
     },
-    isFormValid () {
-      if(this.isEmpty()){
+    isFormValid() {
+      if (this.isEmpty()) {
         this.errors.push('내용을 입력해 주세요!')
         return false;
       }
-      if(!this.passwordValid()){
-        this.errors.push('패스워드가 일치하지 않습니다!')
+      if (!this.passwordValid()) {
+        this.errors.push('패스워드불일치 혹은 최소6자 이상이어야 합니다!')
         return false;
       }
       return true;
     }
   }
-};
+}
 </script>
 
 <style scoped>
+.login__container {
+  margin-top: 40px;
+}
 
+.column {
+  max-width: 450px;
+}
 </style>

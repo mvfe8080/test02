@@ -3742,11 +3742,11 @@ vue-loader@^10.3.0:
     vue-style-loader "^2.0.0"
     vue-template-es2015-compiler "^1.2.2"
 
-vue-material@^0.6.3:
-  version "0.6.3"
-  resolved vue-material-0.6.3.tgz#28b7131cdba441d484ac5a2b3bc0a6291319fd0b
+vue-material@^0.7.0:
+  version "0.7.0"
+  resolved vue-material-0.7.0.tgz#ff7e8e7768901b41728f950d20227e2bda1af524
   dependencies:
-    vue "^2.1.8"
+    vue "^2.1.10"
 
 vue-router@^2.2.0:
   version "2.2.0"
@@ -3770,7 +3770,7 @@ vue-template-es2015-compiler@^1.2.2:
   version "1.5.0"
   resolved vue-template-es2015-compiler-1.5.0.tgz#e4f672ab1718a3abf9171a080daefac31be117e1
 
-vue@^2.1.10, vue@^2.1.8:
+vue@^2.1.10:
   version "2.1.10"
   resolved vue-2.1.10.tgz#c9235ca48c7925137be5807832ac4e3ac180427b
 
