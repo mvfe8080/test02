@@ -1,21 +1,21 @@
 <template>
-  <div id="app">
-    <md-card>
-      <md-card-header>
-        <div class="md-title">Tchat.vue</div>
-        <div class="md-subhead">별이아빠</div>
-      </md-card-header>
-      <md-card-content>
-
-      </md-card-content>
-    </md-card>
-  </div>
+  <div class="tchat__container">
+    <sidebar></sidebar>
+    <messages></messages>
 </template>
 
 <script>
+import Sidebar from './../components/Sidebar'
+import Messages from './../components/Messages'
 
+export default {
+  name: 'tchat',
+  components: {Sidebar, Messages}
+}
 </script>
 
-<style>
-
+<style scoped>
+.tchat_container{
+  height: 100%;
+}
 </style>

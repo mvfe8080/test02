@@ -26,7 +26,14 @@ const routes = [
   },
   {
     path: '/',
-    component: Tchat
+    component: Tchat,
+    beforeEnter: (to, from, next) => {
+      if(!firebase.auth().currentUser){
+        next('/login')
+      }else{
+        next()
+      }
+    }
   },
   {
     path: '/test',
@@ -48,11 +55,18 @@ firebase.initializeApp(config);
 
 window.firebase = firebase
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  template: '<App/>',
-  components: { App },
-  router,
-  store
+const unsuscribe = firebase.auth().onAuthStateChanged(user => {
+
+  store.dispatch('setUser', user)
+
+  new Vue({
+    el: '#app',
+    template: '<App/>',
+    components: { App },
+    router,
+    store
+  })
+
+  unsuscribe()
+
 })
