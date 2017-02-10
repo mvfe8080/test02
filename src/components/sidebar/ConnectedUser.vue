@@ -43,7 +43,7 @@ export default {
 <style scoped>
 .connectedUser__container{
   position: absolute;
-  background-color: #004d00;
+  background-color: #008066;
   top: 0;
   right: 0;
   bottom: 0;

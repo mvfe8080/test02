@@ -2,15 +2,17 @@
   <div class="sidebar">
     <connected-user></connected-user>
     <h1 class="ui inverted center aligned header">뷰파이어채팅</h1>
+    <channels></channels>
   </div>
 </template>
 
 <script>
 import ConnectedUser from './sidebar/ConnectedUser'
+import Channels from './sidebar/Channels'
 
 export default {
   name: 'sidebar',
-  components: {ConnectedUser}
+  components: {ConnectedUser, Channels}
 }
 </script>
 
