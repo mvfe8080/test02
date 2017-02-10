@@ -5,7 +5,9 @@
       <div class="ui segment">
         <div class="ui comments">
           <!--단일메세지-->
-          <span v-for="message in messages">{{ message.content }}</span>
+          <transition-group tag="div" name="list">
+            <single-message :message="message" v-for="message in messages" :key="message.id"></single-message>
+          </transition-group>
         </div>
       </div>
     </div>
@@ -17,10 +19,11 @@
 <script>
 import MessageForm from './MessageForm'
 import { mapGetters } from 'vuex'
+import SingleMessage from './SingleMessage'
 
 export default {
   name: 'messages',
-  components: {MessageForm},
+  components: { MessageForm, SingleMessage },
   data () {
     return {
       messagesRef: firebase.database().ref('messages'),
@@ -42,7 +45,9 @@ export default {
   methods: {
     addListeners () {
       this.messagesRef.child(this.currentChannel.id).on('child_added', snap => {
-        this.messages.push(snap.val())
+        let message = snap.val()
+        message['id'] = snap.key
+        this.messages.push(message)
       })
     },
     detachListeners () {
