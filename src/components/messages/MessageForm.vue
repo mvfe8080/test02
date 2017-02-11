@@ -32,7 +32,7 @@ export default {
     sendMessage () {
       if(this.currentChannel !== null){
         if(this.message.length > 0){
-          this.$parent.messagesRef.child(this.currentChannel.id).push().set(this.createMessage()).then( () => {
+          this.$parent.getMessageRef().child(this.currentChannel.id).push().set(this.createMessage()).then( () => {
 
           }).catch( error => {
             this.errors.push(error.message)

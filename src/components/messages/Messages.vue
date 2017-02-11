@@ -1,7 +1,7 @@
 <template>
   <div class="messages__container">
     <div class="messages__content">
-      <h2 class="ui inverted center aligned header">채널</h2>
+      <h2 class="ui inverted center aligned header">{{ channelName }}</h2>
       <div class="ui segment">
         <div class="ui comments">
           <!--단일메세지-->
@@ -27,16 +27,22 @@ export default {
   data () {
     return {
       messagesRef: firebase.database().ref('messages'),
+      privateMessagesRef: firebase.database().ref('privateMessages'),
       messages: [],
-      channel: null
+      channel: null,
+      listeners: []
     }
   },
   computed: {
-    ...mapGetters(['currentChannel', 'currentUser'])
+    ...mapGetters(['currentChannel', 'currentUser', 'isPrivate']),
+    channelName(){
+      if(this.channel !== null){
+        return this.isPrivate ? '[개인]' + this.channel.name : '[공개]' + this.channel.name
+      }
+    }
   },
   watch: {
     currentChannel () {
-      this.messages = []
       this.detachListeners()
       this.addListeners()
       this.channel = this.currentChannel
@@ -44,15 +50,37 @@ export default {
   },
   methods: {
     addListeners () {
-      this.messagesRef.child(this.currentChannel.id).on('child_added', snap => {
+      let ref = this.getMessageRef()
+      ref.child(this.currentChannel.id).on('child_added', snap => {
         let message = snap.val()
         message['id'] = snap.key
         this.messages.push(message)
+
+        this.$nextTick( () => {
+          $('html, body').scrollTop($(document).height())
+        })      
       })
     },
+    addToListeners(id, ref, event){
+      let index = this.listeners.findIndex( el => {
+        return el.id === id && el.ref === ref && el.event === event
+      })
+      if(index === -1){
+        this.listeners.push({id: id, ref: ref, event: event})
+      }
+    },
     detachListeners () {
-      if(this.channel !== null){
-        this.messagesRef.child(this.channel.id).off('child_added')
+      this.listeners.forEach( listener => {
+        listener.ref.child(listener.id).off(listener.event)
+      })
+      this.listeners = []
+      this.messages = []
+    },
+    getMessageRef () {
+      if(this.isPrivate){
+        return this.privateMessagesRef
+      }else{
+        return this.messagesRef
       }
     }
   },
